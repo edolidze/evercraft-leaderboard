@@ -1,0 +1,848 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!--
+================================================================================
+  THE A LIST CHALLENGE â€” LEADERBOARD
+  Evercraft International, 2026
+================================================================================
+
+  QUICK CONFIGURATION â€” edit only this section to customise the page:
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  All runtime config lives in the <script id="cfg"> block below.
+  Open the file in any text editor, find the block, and change values.
+
+  GOOGLE SHEET SETUP
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  1. Create a Google Sheet with these columns (Row 1 = headers):
+       A: Rank  |  B: Venue Name  |  C: Sales Points
+       D: Menu & Activation Points  |  E: Digital Points  |  F: Total Points
+
+  2. Populate rows 2-31 with your 30 venue entries.
+     The page re-sorts by Total Points (highest first) automatically,
+     so the Rank column in the sheet is ignored at render time.
+
+  3. Publish the sheet to the web:
+       File â†’ Share â†’ Publish to web
+       Select the tab containing your data
+       Format: Comma-separated values (.csv)
+       Click "Publish" and copy the URL
+
+  4. Replace the SHEET_CSV_URL value below with your copied URL.
+
+  BRAND LOGOS
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  Replace the five placeholder <img> tags in the brand-logos section
+  with your actual partner-brand logo files, or use data-URIs.
+  For the Evercraft logo, drop the image into /../assets/images/ and
+  update the src in the <header> section.
+================================================================================
+-->
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The A List Challenge â€“ Live Leaderboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* â”€â”€â”€ Reset & base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #111111;
+      --surface:     #1a1a1a;
+      --card:        #212121;
+      --border:      rgba(255,255,255,0.07);
+      --border-hi:   rgba(255,255,255,0.13);
+
+      --crimson:     #C41E3A;
+      --crimson-dk:  #8B0000;
+      --amber:       #E8943A;
+
+      --gold-bg:     rgba(212,175,55,0.12);
+      --gold-border: rgba(212,175,55,0.55);
+      --gold-text:   #E8C84A;
+      --gold-badge:  #D4AF37;
+
+      --silver-bg:     rgba(168,169,173,0.10);
+      --silver-border: rgba(168,169,173,0.45);
+      --silver-text:   #C8C9CD;
+      --silver-badge:  #A8A9AD;
+
+      --bronze-bg:     rgba(205,127,50,0.10);
+      --bronze-border: rgba(205,127,50,0.40);
+      --bronze-text:   #D49B5A;
+      --bronze-badge:  #CD7F32;
+
+      --text:        #F0EDE8;
+      --text-dim:    #9A9688;
+      --text-muted:  #5A574F;
+
+      --radius-sm:   6px;
+      --radius-md:   12px;
+      --radius-lg:   20px;
+
+      --transition:  0.18s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* â”€â”€â”€ Gradient bar at very top â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .top-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--crimson-dk) 0%, var(--crimson) 50%, var(--amber) 100%);
+    }
+
+    /* â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .site-header {
+      position: relative;
+      overflow: hidden;
+      padding: 48px 24px 40px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,30,58,0.18) 0%, transparent 70%),
+        var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* subtle grid texture */
+    .site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .header-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+
+    /* Evercraft logo */
+    .evercraft-logo-svg {
+      display: block;
+      margin: 0 auto 28px;
+      height: 72px;
+      width: auto;
+    }
+
+    /* Divider line before title */
+    .header-eyebrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+    .header-eyebrow::before,
+    .header-eyebrow::after {
+      content: '';
+      flex: 1;
+      max-width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--crimson));
+    }
+    .header-eyebrow::after { background: linear-gradient(90deg, var(--crimson), transparent); }
+
+    .site-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 10vw, 86px);
+      letter-spacing: 0.04em;
+      line-height: 0.92;
+      background: linear-gradient(135deg, #F0EDE8 20%, var(--amber) 60%, var(--crimson) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .site-subtitle {
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .site-tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 36px;
+    }
+
+    /* â”€â”€â”€ Brand logos strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .brand-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 18px 0 4px;
+      border-top: 1px solid var(--border);
+    }
+
+    .brand-logo-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0 18px;
+      border: 1px solid var(--border-hi);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      min-width: 90px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .brand-logo-slot img {
+      max-height: 32px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.65;
+    }
+    .brand-logo-slot:hover { border-color: rgba(196,30,58,0.4); background: rgba(196,30,58,0.06); }
+
+    /* â”€â”€â”€ Main content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .main { max-width: 980px; margin: 0 auto; padding: 40px 16px 60px; }
+
+    /* â”€â”€â”€ Section heading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(196,30,58,0.15);
+      border: 1px solid rgba(196,30,58,0.35);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--crimson);
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--crimson);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* â”€â”€â”€ Status bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    #status-bar.error { border-color: rgba(196,30,58,0.35); color: #E87070; background: rgba(196,30,58,0.07); }
+    #status-bar.ok    { border-color: rgba(80,180,80,0.25); color: #7AC68A; background: rgba(80,180,80,0.06); }
+    .status-spinner {
+      width: 14px; height: 14px; flex-shrink: 0;
+      border: 2px solid var(--border-hi);
+      border-top-color: var(--crimson);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* â”€â”€â”€ Leaderboard card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .leaderboard-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    /* Desktop table */
+    .lb-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .lb-table thead tr {
+      background: linear-gradient(90deg, rgba(196,30,58,0.25) 0%, rgba(139,0,0,0.15) 100%);
+      border-bottom: 1px solid rgba(196,30,58,0.3);
+    }
+    .lb-table th {
+      padding: 13px 16px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .lb-table th.num, .lb-table td.num { text-align: right; }
+    .lb-table th:first-child, .lb-table td:first-child { padding-left: 20px; }
+    .lb-table th:last-child,  .lb-table td:last-child  { padding-right: 20px; }
+
+    .lb-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .lb-table tbody tr:last-child { border-bottom: none; }
+    .lb-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+    .lb-table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    /* â”€â”€â”€ Rank badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.05em;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+    }
+    .rank-badge.gold   { background: var(--gold-bg);   border-color: var(--gold-border);   color: var(--gold-badge);   font-size: 18px; }
+    .rank-badge.silver { background: var(--silver-bg); border-color: var(--silver-border); color: var(--silver-badge); font-size: 18px; }
+    .rank-badge.bronze { background: var(--bronze-bg); border-color: var(--bronze-border); color: var(--bronze-badge); font-size: 18px; }
+
+    /* â”€â”€â”€ Podium rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .lb-table tbody tr.gold-row   { background: var(--gold-bg);   border-bottom-color: var(--gold-border); }
+    .lb-table tbody tr.silver-row { background: var(--silver-bg); border-bottom-color: var(--silver-border); }
+    .lb-table tbody tr.bronze-row { background: var(--bronze-bg); border-bottom-color: var(--bronze-border); }
+
+    .lb-table tbody tr.gold-row   td.venue-name { color: var(--gold-text); font-weight: 600; }
+    .lb-table tbody tr.silver-row td.venue-name { color: var(--silver-text); font-weight: 600; }
+    .lb-table tbody tr.bronze-row td.venue-name { color: var(--bronze-text); font-weight: 600; }
+
+    .lb-table tbody tr.gold-row   td.total-pts { color: var(--gold-text);   font-weight: 700; }
+    .lb-table tbody tr.silver-row td.total-pts { color: var(--silver-text); font-weight: 700; }
+    .lb-table tbody tr.bronze-row td.total-pts { color: var(--bronze-text); font-weight: 700; }
+
+    td.total-pts { font-weight: 600; }
+
+    td.venue-name { font-weight: 500; }
+
+    /* â”€â”€â”€ Left accent bar for podium â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .lb-table tbody tr.gold-row   td:first-child { box-shadow: inset 3px 0 0 var(--gold-badge); }
+    .lb-table tbody tr.silver-row td:first-child { box-shadow: inset 3px 0 0 var(--silver-badge); }
+    .lb-table tbody tr.bronze-row td:first-child { box-shadow: inset 3px 0 0 var(--bronze-badge); }
+
+    /* â”€â”€â”€ Mobile list (hidden on desktop) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .lb-mobile { display: none; }
+
+    .lb-mobile-row {
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background var(--transition);
+    }
+    .lb-mobile-row:last-child { border-bottom: none; }
+    .lb-mobile-row:active { background: rgba(255,255,255,0.03); }
+
+    .lb-mobile-row.gold-row   { background: var(--gold-bg);   border-bottom-color: var(--gold-border); }
+    .lb-mobile-row.silver-row { background: var(--silver-bg); border-bottom-color: var(--silver-border); }
+    .lb-mobile-row.bronze-row { background: var(--bronze-bg); border-bottom-color: var(--bronze-border); }
+
+    .lb-mobile-row.gold-row   .mb-rank-cell { box-shadow: inset 3px 0 0 var(--gold-badge); }
+    .lb-mobile-row.silver-row .mb-rank-cell { box-shadow: inset 3px 0 0 var(--silver-badge); }
+    .lb-mobile-row.bronze-row .mb-rank-cell { box-shadow: inset 3px 0 0 var(--bronze-badge); }
+
+    .lb-mobile-summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 14px 20px;
+    }
+    .mb-rank-cell { min-width: 36px; }
+    .mb-venue     { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); }
+    .gold-row   .mb-venue { color: var(--gold-text);   font-weight: 600; }
+    .silver-row .mb-venue { color: var(--silver-text); font-weight: 600; }
+    .bronze-row .mb-venue { color: var(--bronze-text); font-weight: 600; }
+
+    .mb-total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-right: 4px;
+    }
+    .gold-row   .mb-total { color: var(--gold-text); }
+    .silver-row .mb-total { color: var(--silver-text); }
+    .bronze-row .mb-total { color: var(--bronze-text); }
+
+    .mb-chevron {
+      width: 18px; height: 18px; flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform 0.22s ease;
+    }
+    .lb-mobile-row.open .mb-chevron { transform: rotate(180deg); }
+
+    .lb-mobile-breakdown {
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .lb-mobile-row.open .lb-mobile-breakdown { display: grid; }
+
+    .breakdown-cell {
+      background: rgba(0,0,0,0.35);
+      padding: 10px 14px 12px;
+      text-align: center;
+    }
+    .breakdown-label { color: var(--text-muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+    .breakdown-value { color: var(--text-dim); font-size: 14px; font-weight: 600; }
+
+    /* â”€â”€â”€ Empty / loading states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .lb-empty {
+      padding: 56px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .lb-empty strong { display: block; font-size: 32px; margin-bottom: 8px; }
+
+    /* â”€â”€â”€ Points key â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .points-key {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .points-key-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .key-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .footer-inner { max-width: 860px; margin: 0 auto; }
+    .footer-line   { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+    .footer-line a { color: var(--text-dim); text-decoration: none; border-bottom: 1px solid var(--border-hi); }
+    .footer-line a:hover { color: var(--crimson); border-color: var(--crimson); }
+    .footer-divider { margin: 16px auto; width: 48px; height: 1px; background: var(--border-hi); }
+
+    /* â”€â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    @media (max-width: 680px) {
+      .lb-table  { display: none; }
+      .lb-mobile { display: block; }
+
+      .site-header { padding: 32px 16px 28px; }
+      .main { padding: 28px 12px 48px; }
+
+      .section-header { margin-bottom: 16px; }
+    }
+
+    @media (max-width: 400px) {
+      .brand-logos { gap: 8px; }
+      .brand-logo-slot { min-width: 70px; padding: 0 10px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar"></div>
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       HEADER
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <header class="site-header">
+    <div class="header-inner">
+
+      <!-- Evercraft International logo â€” official SVG asset -->
+      <svg class="evercraft-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 157.71 55.2" role="img" aria-label="Evercraft International"><defs><style>.cls-1{fill:#ffffff;}</style></defs><g><circle class="cls-1" cx="157.12" cy="54.21" r="0.58"/><path class="cls-1" d="M52.74,7.3,43.92,26.17H36.78L28,7.3h6L39.66,21l.78,1.88L41.23,21,47,7.3h5.77m1.34-.85H46.4L40.45,20.63,34.55,6.45H26.62L36.24,27h8.22L54.08,6.45Z"/><path class="cls-1" d="M66.08,6.72a11.14,11.14,0,0,1,5.83,1.46,9.64,9.64,0,0,1,3.71,4.14A14.15,14.15,0,0,1,76.92,18H60.11l.54,1.19a5.15,5.15,0,0,0,.41.78,6.29,6.29,0,0,0,3,2.43,11.68,11.68,0,0,0,4.54.79,18,18,0,0,0,4.76-.64,17.64,17.64,0,0,0,3-1.11v2.75A16.41,16.41,0,0,1,72.19,26a20.51,20.51,0,0,1-5.61.74,14.65,14.65,0,0,1-6.3-1.29A10.39,10.39,0,0,1,56,21.91a9,9,0,0,1-1.55-5.23,9.2,9.2,0,0,1,1.48-5.2A10,10,0,0,1,60.05,8a13.9,13.9,0,0,1,6-1.27M60,15.26H72.2l-.33-1.09a6.23,6.23,0,0,0-.58-1.35,5.4,5.4,0,0,0-2.09-2,6.19,6.19,0,0,0-3-.7,6.66,6.66,0,0,0-3.26.78A5.55,5.55,0,0,0,60.8,13a5.62,5.62,0,0,0-.45,1.14L60,15.26m6.07-9.39a14.69,14.69,0,0,0-6.4,1.35A11,11,0,0,0,55.23,11a10,10,0,0,0-1.62,5.67,9.83,9.83,0,0,0,1.7,5.71,11.11,11.11,0,0,0,4.61,3.84,15.51,15.51,0,0,0,6.66,1.37,21.36,21.36,0,0,0,5.84-.77,17,17,0,0,0,4.83-2.22V20a16.81,16.81,0,0,1-4.11,1.69,17.29,17.29,0,0,1-4.54.61,10.92,10.92,0,0,1-4.21-.72,5.49,5.49,0,0,1-2.62-2.1,6.11,6.11,0,0,1-.35-.67H77.79A15.53,15.53,0,0,0,76.38,12a10.35,10.35,0,0,0-4-4.49,11.9,11.9,0,0,0-6.27-1.59Zm-4.92,8.54a4.55,4.55,0,0,1,.38-1,4.6,4.6,0,0,1,1.84-1.82A5.76,5.76,0,0,1,66.22,11a5.29,5.29,0,0,1,2.58.6,4.68,4.68,0,0,1,1.77,1.71,5.94,5.94,0,0,1,.49,1.15Z"/><path class="cls-1" d="M95.74,6.71h0a10.31,10.31,0,0,1,1.56.12v5.09c-.37-.05-.73-.1-1.07-.13-.66-.06-1.28-.1-1.83-.1a7.6,7.6,0,0,0-3.34.74,5.68,5.68,0,0,0-2.54,2.46,8.79,8.79,0,0,0-.92,4.28v7H82.13v-13L81,7.3h5.56L87,10.5l.39,2.3,1.18-2a7.91,7.91,0,0,1,7.13-4.08m0-.85a8.74,8.74,0,0,0-7.86,4.5l-.65-3.91H79.92l1.36,6.92V27h7.17V19.17a7.83,7.83,0,0,1,.82-3.87,4.88,4.88,0,0,1,2.16-2.11,6.8,6.8,0,0,1,3-.65c.53,0,1.11,0,1.75.09a20,20,0,0,1,2,.31V6.13a10.91,10.91,0,0,0-2.41-.27Z"/><path class="cls-1" d="M24.31,39.46a6.08,6.08,0,0,1,2.9-.65,6.18,6.18,0,0,1,3.6,1,4.44,4.44,0,0,1,1.87,2.88h7.17a9.06,9.06,0,0,0-2-4.85,11.42,11.42,0,0,0-4.45-3.22,15.73,15.73,0,0,0-6.16-1.15,15.31,15.31,0,0,0-6.63,1.36,11,11,0,0,0-4.51,3.82,10.75,10.75,0,0,0,0,11.35,10.85,10.85,0,0,0,4.51,3.82,15.31,15.31,0,0,0,6.63,1.37,15.73,15.73,0,0,0,6.16-1.15,11.37,11.37,0,0,0,4.45-3.24,9.16,9.16,0,0,0,2-4.83H32.68a4.58,4.58,0,0,1-1.87,2.81,6.12,6.12,0,0,1-3.6,1,6.32,6.32,0,0,1-2.9-.63,4.32,4.32,0,0,1-1.91-1.87,6.15,6.15,0,0,1-.67-3,6.23,6.23,0,0,1,.67-3A4.41,4.41,0,0,1,24.31,39.46Z"/><path class="cls-1" d="M57.4,33.48a7.08,7.08,0,0,0-3.62.86,7.44,7.44,0,0,0-2.49,2.38A12.91,12.91,0,0,0,50,39.57L49,34.05H41.73L43.1,41V54.62h7.17v-8.5a8,8,0,0,1,.81-3.87,4.88,4.88,0,0,1,2.16-2.11,6.8,6.8,0,0,1,3-.65c.53,0,1.11,0,1.75.09a17.12,17.12,0,0,1,2,.31V33.73c-.43-.07-.87-.13-1.3-.18A10.88,10.88,0,0,0,57.4,33.48Z"/><path class="cls-1" d="M80.64,34.05l-.52,4.15a10.62,10.62,0,0,0-3.55-3.39,11,11,0,0,0-10.52,0,9.27,9.27,0,0,0-3.59,3.8,12.23,12.23,0,0,0-1.27,5.73A12.18,12.18,0,0,0,62.46,50a9.27,9.27,0,0,0,3.59,3.82,10.29,10.29,0,0,0,5.3,1.35,10.15,10.15,0,0,0,5.22-1.35,10.82,10.82,0,0,0,3.54-3.43l.53,4.2h7.49l-1.29-10.3,1.29-10.27ZM76.37,49a6.19,6.19,0,0,1-2.86.69A5,5,0,0,1,70.88,49a4.6,4.6,0,0,1-1.79-1.89,5.84,5.84,0,0,1-.63-2.75,6,6,0,0,1,.63-2.8,4.72,4.72,0,0,1,1.79-1.89A5.1,5.1,0,0,1,73.51,39a6.31,6.31,0,0,1,2.86.68,7.91,7.91,0,0,1,3.95,4.69,8,8,0,0,1-1.55,2.75A7.73,7.73,0,0,1,76.37,49Z"/><path class="cls-1" d="M125.81,49.22a11.49,11.49,0,0,1-2.69.29,4.69,4.69,0,0,1-3.33-.92,4.33,4.33,0,0,1-.92-3.15v-5h8.72V34.88h-8.72V28.83H114.8l-3,6.3h-10v-.75a2.64,2.64,0,0,1,1-2.29,5.26,5.26,0,0,1,3.08-.71,16.4,16.4,0,0,1,2,.13,15.81,15.81,0,0,1,1.89.38V27.13a18.72,18.72,0,0,0-2.27-.61,13.72,13.72,0,0,0-2.52-.21,13.34,13.34,0,0,0-5.71,1.08,7.57,7.57,0,0,0-3.48,3.17,9.78,9.78,0,0,0-1.16,4.57H90.44v5.55h4.18V54.62h7.21V40.68h9.83v5.84a9.46,9.46,0,0,0,1,4.57,6.85,6.85,0,0,0,3.2,3,12.66,12.66,0,0,0,5.52,1.05,18,18,0,0,0,3.65-.36A21.33,21.33,0,0,0,128,54V48.5A12.49,12.49,0,0,1,125.81,49.22Z"/><path class="cls-1" d="M24.05.85V5.1H7.51l1.28,6.59H23v3.64H8.84l-1.33,6.6H24.23v4.24h-23L3.55,13.69,1.2.85H24.05M24.9,0H0L2.65,13.69,0,27h25V21.08H8.71l.92-4.9H23.89V10.85H9.58L8.63,6H24.9V0Z"/><path class="cls-1" d="M136.53,54.61h-2.37v-.47l.77-.18V48.71l-.77-.18v-.48h2.37v.48l-.77.18V54l.77.18Z"/><path class="cls-1" d="M145.94,54.61h-1l-3.52-5.45h0l0,.37c0,.54.05,1,.05,1.42v3.66h-.76V48.05h.95l.21.32,2.15,3.33,1.15,1.78h0c0-.07,0-.33,0-.77s0-.76,0-1v-3.7h.77Z"/><path class="cls-1" d="M152.74,54.61h-.83V48.78h-2v-.73h4.92v.73h-2Z"/></g></svg>
+
+      <div class="header-eyebrow">The 2026 Competition</div>
+
+      <h1 class="site-title">The A List<br>Challenge</h1>
+
+      <p class="site-subtitle">May 1 â€“ September 1, 2026 &nbsp;|&nbsp; Tbilisi, Georgia</p>
+      <p class="site-tagline">Live monthly rankings â€” updated throughout the competition</p>
+
+      <!--
+        BRAND LOGOS
+        â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        Replace the 5 placeholder slots below with your actual partner brand logos.
+        Use <img src="path/to/logo.png" alt="Brand Name"> inside each .brand-logo-slot.
+        Images are filtered to white automatically via CSS.
+      -->
+      <div class="brand-logos">
+        <div class="brand-logo-slot"><img src="../assets/images/logo-ardfort.png" alt="Ardfort 1708"></div>
+        <div class="brand-logo-slot"><img src="../assets/images/logo-forswood.png" alt="The Forswood"></div>
+        <div class="brand-logo-slot"><img src="../assets/images/logo-materra.png" alt="Materra"></div>
+        <div class="brand-logo-slot"><img src="../assets/images/logo-halstons.png" alt="Halstons"></div>
+        <div class="brand-logo-slot"><img src="../assets/images/logo-danu.png" alt="Danu"></div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       MAIN LEADERBOARD
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <main class="main">
+
+    <div class="section-header">
+      <h2 class="section-title">Current Standings</h2>
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Live
+      </div>
+    </div>
+
+    <!-- Status / loading feedback -->
+    <div id="status-bar">
+      <div class="status-spinner"></div>
+      <span id="status-text">Fetching latest scoresâ€¦</span>
+    </div>
+
+    <!-- Leaderboard container -->
+    <div class="leaderboard-card" id="leaderboard-card">
+
+      <!-- Desktop table (hidden on mobile via CSS) -->
+      <table class="lb-table" id="lb-table" aria-label="Leaderboard">
+        <thead>
+          <tr>
+            <th style="width:56px">Rank</th>
+            <th>Venue</th>
+            <th class="num">Sales</th>
+            <th class="num">Menu &amp; Activation</th>
+            <th class="num">Digital</th>
+            <th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody id="lb-tbody">
+          <tr><td colspan="6" class="lb-empty"><strong>â‹¯</strong>Loading leaderboardâ€¦</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Mobile list (hidden on desktop via CSS) -->
+      <div class="lb-mobile" id="lb-mobile"></div>
+
+    </div><!-- /leaderboard-card -->
+
+    <!-- Points key legend -->
+    <div class="points-key">
+      <div class="points-key-item"><span class="key-dot" style="background:var(--gold-badge)"></span> 1st place</div>
+      <div class="points-key-item"><span class="key-dot" style="background:var(--silver-badge)"></span> 2nd place</div>
+      <div class="points-key-item"><span class="key-dot" style="background:var(--bronze-badge)"></span> 3rd place</div>
+      <div class="points-key-item" style="margin-left:auto;color:var(--text-muted);font-size:11px;font-style:italic;">
+        Ties broken by Sales Points
+      </div>
+    </div>
+
+  </main>
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       FOOTER
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-line">Scores verified monthly by your Evercraft brand ambassador.</p>
+      <div class="footer-divider"></div>
+      <p class="footer-line">
+        Questions? Contact&nbsp;
+        <!--
+          CONTACT EMAIL â€” replace the address below with yours
+        -->
+        <a href="mailto:info@evercraft.ge">info@evercraft.ge</a>
+      </p>
+      <p class="footer-line" style="margin-top:10px;font-size:11px;opacity:0.5;">
+        &copy; 2026 Evercraft International
+      </p>
+    </div>
+  </footer>
+
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       JAVASCRIPT â€” DATA FETCHING & RENDERING
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <script>
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       CONFIGURATION
+       Change these values to customise the data source and behaviour.
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    const CONFIG = {
+      // Google Sheets public CSV export URL.
+      // To get this:  File â†’ Share â†’ Publish to web â†’ CSV â†’ copy URL
+      SHEET_CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvBX7VlEVucE2gv9kJGfA8gsuTFu3jPlikBIuAfZl-i4ZaX9VOz0ZLb6dhF9ntn_8pCAXZpDY8Dnbl/pub?output=csv',
+
+      // Expected column indices (0-based) in the CSV.
+      // Change only if your sheet column order differs.
+      COL_RANK:           0,
+      COL_VENUE:          1,
+      COL_SALES:          2,
+      COL_MENU_ACTIV:     3,
+      COL_DIGITAL:        4,
+      COL_TOTAL:          5,
+    };
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       CSV PARSER
+       Handles quoted fields and commas inside quoted strings.
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function parseCSVLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) return [];   // header only or empty
+
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {   // skip header row (row 0)
+        const cols = parseCSVLine(lines[i]);
+        const venue = cols[CONFIG.COL_VENUE] || '';
+        if (!venue) continue;   // skip empty rows
+
+        rows.push({
+          venue:       venue.replace(/^"|"$/g, ''),
+          sales:       parseFloat(cols[CONFIG.COL_SALES])      || 0,
+          menuActiv:   parseFloat(cols[CONFIG.COL_MENU_ACTIV]) || 0,
+          digital:     parseFloat(cols[CONFIG.COL_DIGITAL])    || 0,
+          total:       parseFloat(cols[CONFIG.COL_TOTAL])      || 0,
+        });
+      }
+
+      // Sort by total desc; tie-break by sales desc
+      rows.sort((a, b) => (b.total - a.total) || (b.sales - a.sales));
+
+      // Assign computed rank (handles ties correctly)
+      rows.forEach((r, i) => { r.rank = i + 1; });
+
+      return rows;
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       HELPERS
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function podiumClass(rank) {
+      if (rank === 1) return 'gold-row';
+      if (rank === 2) return 'silver-row';
+      if (rank === 3) return 'bronze-row';
+      return '';
+    }
+
+    function rankBadge(rank) {
+      const cls = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+      const icon = rank === 1 ? 'ðŸ¥‡' : rank === 2 ? 'ðŸ¥ˆ' : rank === 3 ? 'ðŸ¥‰' : rank;
+      return `<span class="rank-badge ${cls}">${icon}</span>`;
+    }
+
+    function fmt(n) {
+      // Show integer if whole number, else 1 decimal place
+      return Number.isInteger(n) ? n.toString() : n.toFixed(1);
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       RENDER â€” Desktop table
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function renderTable(rows) {
+      const tbody = document.getElementById('lb-tbody');
+
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="lb-empty">
+          <strong>â€”</strong>No data yet. Check back after the first update.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => `
+        <tr class="${podiumClass(r.rank)}">
+          <td>${rankBadge(r.rank)}</td>
+          <td class="venue-name">${escapeHTML(r.venue)}</td>
+          <td class="num">${fmt(r.sales)}</td>
+          <td class="num">${fmt(r.menuActiv)}</td>
+          <td class="num">${fmt(r.digital)}</td>
+          <td class="num total-pts">${fmt(r.total)}</td>
+        </tr>
+      `).join('');
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       RENDER â€” Mobile list
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function renderMobile(rows) {
+      const container = document.getElementById('lb-mobile');
+
+      if (!rows.length) {
+        container.innerHTML = `<div class="lb-empty"><strong>â€”</strong>No data yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = rows.map(r => `
+        <div class="lb-mobile-row ${podiumClass(r.rank)}" role="button" aria-expanded="false" tabindex="0">
+          <div class="lb-mobile-summary">
+            <div class="mb-rank-cell">${rankBadge(r.rank)}</div>
+            <div class="mb-venue">${escapeHTML(r.venue)}</div>
+            <div class="mb-total">${fmt(r.total)}</div>
+            <svg class="mb-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="lb-mobile-breakdown">
+            <div class="breakdown-cell">
+              <div class="breakdown-label">Sales</div>
+              <div class="breakdown-value">${fmt(r.sales)}</div>
+            </div>
+            <div class="breakdown-cell">
+              <div class="breakdown-label">Menu &amp; Activ.</div>
+              <div class="breakdown-value">${fmt(r.menuActiv)}</div>
+            </div>
+            <div class="breakdown-cell">
+              <div class="breakdown-label">Digital</div>
+              <div class="breakdown-value">${fmt(r.digital)}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Expand / collapse on click or keyboard
+      container.querySelectorAll('.lb-mobile-row').forEach(row => {
+        const toggle = () => {
+          const open = row.classList.toggle('open');
+          row.setAttribute('aria-expanded', open);
+        };
+        row.addEventListener('click', toggle);
+        row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+      });
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       SECURITY â€” escape HTML entities before inserting venue names
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       STATUS BAR
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    function setStatus(msg, type) {   // type: 'loading' | 'ok' | 'error'
+      const bar  = document.getElementById('status-bar');
+      const text = document.getElementById('status-text');
+      bar.className = type === 'error' ? 'error' : type === 'ok' ? 'ok' : '';
+      const spinnerHTML = type === 'loading'
+        ? '<div class="status-spinner"></div>'
+        : type === 'ok' ? 'âœ“' : 'âš ';
+      bar.innerHTML = `${spinnerHTML} <span>${msg}</span>`;
+    }
+
+    /* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+       MAIN â€” Fetch & render
+    â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    async function loadLeaderboard() {
+      setStatus('Fetching latest scoresâ€¦', 'loading');
+
+      try {
+        const response = await fetch(CONFIG.SHEET_CSV_URL, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const csv  = await response.text();
+        const rows = parseCSV(csv);
+
+        renderTable(rows);
+        renderMobile(rows);
+
+        const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        setStatus(`${rows.length} venue${rows.length !== 1 ? 's' : ''} loaded â€” last updated ${now}`, 'ok');
+
+      } catch (err) {
+        console.error('Leaderboard fetch error:', err);
+        setStatus('Could not load scores. Check the sheet URL or network connection.', 'error');
+
+        document.getElementById('lb-tbody').innerHTML =
+          `<tr><td colspan="6" class="lb-empty"><strong>âš </strong>Unable to load data.</td></tr>`;
+        document.getElementById('lb-mobile').innerHTML =
+          `<div class="lb-empty"><strong>âš </strong>Unable to load data.</div>`;
+      }
+    }
+
+    // Kick off on page load
+    loadLeaderboard();
+  </script>
+
+</body>
+</html>
+
