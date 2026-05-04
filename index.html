@@ -806,7 +806,7 @@
       bar.className = type === 'error' ? 'error' : type === 'ok' ? 'ok' : '';
       const spinnerHTML = type === 'loading'
         ? '<div class="status-spinner"></div>'
-        : type === 'ok' ? 'âœ“' : 'âš ';
+        : type === 'ok' ? '&#x2713;' : '&#x26A0;';
       bar.innerHTML = `${spinnerHTML} <span>${msg}</span>`;
     }
 
@@ -833,9 +833,9 @@
         setStatus('Could not load scores. Check the sheet URL or network connection.', 'error');
 
         document.getElementById('lb-tbody').innerHTML =
-          `<tr><td colspan="6" class="lb-empty"><strong>âš </strong>Unable to load data.</td></tr>`;
+          `<tr><td colspan="6" class="lb-empty"><strong>&#x26A0;</strong>Unable to load data.</td></tr>`;
         document.getElementById('lb-mobile').innerHTML =
-          `<div class="lb-empty"><strong>âš </strong>Unable to load data.</div>`;
+          `<div class="lb-empty"><strong>&#x26A0;</strong>Unable to load data.</div>`;
       }
     }
 
