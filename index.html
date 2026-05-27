@@ -490,7 +490,157 @@
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
 
-    /* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+    /* ─── How It Works ─────────────────────────────────────────────────────── */
+    .how-it-works { margin-top: 64px; }
+
+    .score-formula {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      background: linear-gradient(90deg, rgba(196,30,58,0.12) 0%, rgba(139,0,0,0.08) 100%);
+      border: 1px solid rgba(196,30,58,0.25);
+      border-radius: var(--radius-md);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(14px, 2.5vw, 20px);
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .score-formula .formula-part { color: var(--text); }
+    .score-formula .formula-sep  { color: var(--crimson); }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 780px) { .cards-grid { grid-template-columns: 1fr; } }
+
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .info-card-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(196,30,58,0.18) 0%, rgba(139,0,0,0.10) 100%);
+    }
+    .info-card-icon { font-size: 22px; margin-bottom: 6px; }
+    .info-card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      color: var(--text);
+    }
+    .info-card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+    .pts-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pts-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+    .pts-table tr:last-child td { border-bottom: none; }
+    .pts-table td:last-child { text-align: right; color: var(--amber); font-weight: 600; }
+
+    .rule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rule-item:last-of-type { border-bottom: none; }
+    .rule-pts { color: var(--amber); font-weight: 600; white-space: nowrap; }
+
+    .card-max {
+      margin-top: auto;
+      padding: 8px 12px;
+      background: rgba(232,148,58,0.08);
+      border: 1px solid rgba(232,148,58,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-align: center;
+    }
+    .card-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .tag-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(196,30,58,0.07);
+      border: 1px solid rgba(196,30,58,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: #E87070;
+      line-height: 1.5;
+    }
+
+    /* ─── Prizes ─────────────────────────────────────────────────────────────── */
+    .prizes-section { margin-top: 64px; }
+    .prizes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+    @media (max-width: 680px) {
+      .prizes-grid { grid-template-columns: 1fr; max-width: 320px; margin-left: auto; margin-right: auto; }
+    }
+    .prize-card {
+      border-radius: var(--radius-md);
+      padding: 28px 20px;
+      text-align: center;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+    .prize-card.gold   { background: var(--gold-bg);   border-color: var(--gold-border); }
+    .prize-card.silver { background: var(--silver-bg); border-color: var(--silver-border); }
+    .prize-card.bronze { background: var(--bronze-bg); border-color: var(--bronze-border); }
+    .prize-medal { font-size: 36px; margin-bottom: 10px; }
+    .prize-place {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      margin-bottom: 8px;
+    }
+    .prize-card.gold   .prize-place { color: var(--gold-text); }
+    .prize-card.silver .prize-place { color: var(--silver-text); }
+    .prize-card.bronze .prize-place { color: var(--bronze-text); }
+    .prize-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(32px, 5vw, 44px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .prize-card.gold   .prize-amount { color: var(--gold-badge); }
+    .prize-card.silver .prize-amount { color: var(--silver-badge); }
+    .prize-card.bronze .prize-amount { color: var(--bronze-badge); }
+    .prizes-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────────────── */
     .site-footer {
       border-top: 1px solid var(--border);
       background: var(--surface);
@@ -616,6 +766,120 @@
         Ties broken by Sales Points
       </div>
     </div>
+
+    <!-- ═══ HOW IT WORKS ═══════════════════════════════════════════════════ -->
+    <section class="how-it-works">
+      <div class="section-header">
+        <h2 class="section-title">How It Works</h2>
+      </div>
+
+      <div class="score-formula">
+        <span>Total Score</span>
+        <span class="formula-sep">=</span>
+        <span class="formula-part">Sales</span>
+        <span class="formula-sep">+</span>
+        <span class="formula-part">Menu &amp; Activation</span>
+        <span class="formula-sep">+</span>
+        <span class="formula-part">Digital &amp; Awareness</span>
+      </div>
+
+      <div class="cards-grid">
+
+        <!-- Card 1: Sales -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon">&#x1F4B0;</div>
+            <div class="info-card-title">Sales</div>
+          </div>
+          <div class="info-card-body">
+            <table class="pts-table">
+              <tr><td>1 &ndash; 20 bottles</td><td>1 pt / bottle</td></tr>
+              <tr><td>21 &ndash; 40 bottles</td><td>2 pts / bottle</td></tr>
+              <tr><td>41 &ndash; 60 bottles</td><td>3 pts / bottle</td></tr>
+              <tr><td>61+ bottles</td><td>4 pts / bottle</td></tr>
+            </table>
+            <p class="card-note">Sales are verified monthly by your Evercraft brand ambassador using purchase records.</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Menu & Activation -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon">&#x1F378;</div>
+            <div class="info-card-title">Menu &amp; Activation</div>
+          </div>
+          <div class="info-card-body">
+            <div class="rule-item">
+              <span>Any Evercraft brand listed on your menu</span>
+              <span class="rule-pts">10 pts</span>
+            </div>
+            <div class="rule-item">
+              <span>Each signature cocktail featuring an Evercraft brand</span>
+              <span class="rule-pts">10 pts each</span>
+            </div>
+            <p class="card-note">Menu listing &amp; cocktail must be active and visible during verification.</p>
+            <div class="card-max">Max 40 pts / month</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Digital -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon">&#x1F4F1;</div>
+            <div class="info-card-title">Digital &amp; Awareness</div>
+          </div>
+          <div class="info-card-body">
+            <div class="tag-warning">&#x26A0; You must tag <strong>&nbsp;@Brand&nbsp;</strong> on every post. Untagged content will not count.</div>
+            <div class="rule-item">
+              <span>Story</span>
+              <span class="rule-pts">2 pts</span>
+            </div>
+            <div class="rule-item">
+              <span>Feed Post</span>
+              <span class="rule-pts">5 pts</span>
+            </div>
+            <div class="rule-item">
+              <span>Reels (Cross Post)</span>
+              <span class="rule-pts">10 pts</span>
+            </div>
+            <div class="rule-item">
+              <span>Engagements Bonus 5K+</span>
+              <span class="rule-pts">10 pts</span>
+            </div>
+            <div class="card-max">Max 30 pts / month</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══ PRIZES ══════════════════════════════════════════════════════════ -->
+    <section class="prizes-section">
+      <div class="section-header">
+        <h2 class="section-title">Prizes</h2>
+      </div>
+      <div class="prizes-grid">
+        <div class="prize-card gold">
+          <div class="prize-medal">&#x1F947;</div>
+          <div class="prize-place">1st Place</div>
+          <div class="prize-amount">5,000&#x20BE;</div>
+        </div>
+        <div class="prize-card silver">
+          <div class="prize-medal">&#x1F948;</div>
+          <div class="prize-place">2nd Place</div>
+          <div class="prize-amount">3,000&#x20BE;</div>
+        </div>
+        <div class="prize-card bronze">
+          <div class="prize-medal">&#x1F949;</div>
+          <div class="prize-place">3rd Place</div>
+          <div class="prize-amount">2,000&#x20BE;</div>
+        </div>
+      </div>
+      <p class="prizes-note">
+        ** In case of a tie, the venue with the highest total bottles sold wins.<br>
+        Sales are verified monthly by your Evercraft brand ambassador using purchase records.
+      </p>
+    </section>
 
   </main>
 
