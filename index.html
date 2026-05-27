@@ -718,55 +718,6 @@
   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <main class="main">
 
-    <div class="section-header">
-      <h2 class="section-title">Current Standings</h2>
-      <div class="live-badge">
-        <span class="live-dot"></span>
-        Live
-      </div>
-    </div>
-
-    <!-- Status / loading feedback -->
-    <div id="status-bar">
-      <div class="status-spinner"></div>
-      <span id="status-text">Fetching latest scores&hellip;</span>
-    </div>
-
-    <!-- Leaderboard container -->
-    <div class="leaderboard-card" id="leaderboard-card">
-
-      <!-- Desktop table (hidden on mobile via CSS) -->
-      <table class="lb-table" id="lb-table" aria-label="Leaderboard">
-        <thead>
-          <tr>
-            <th style="width:56px">Rank</th>
-            <th>Venue</th>
-            <th class="num">Sales</th>
-            <th class="num">Menu &amp; Activation</th>
-            <th class="num">Digital</th>
-            <th class="num">Total</th>
-          </tr>
-        </thead>
-        <tbody id="lb-tbody">
-          <tr><td colspan="6" class="lb-empty"><strong>&#x22EF;</strong>Loading leaderboard&hellip;</td></tr>
-        </tbody>
-      </table>
-
-      <!-- Mobile list (hidden on desktop via CSS) -->
-      <div class="lb-mobile" id="lb-mobile"></div>
-
-    </div><!-- /leaderboard-card -->
-
-    <!-- Points key legend -->
-    <div class="points-key">
-      <div class="points-key-item"><span class="key-dot" style="background:var(--gold-badge)"></span> 1st place</div>
-      <div class="points-key-item"><span class="key-dot" style="background:var(--silver-badge)"></span> 2nd place</div>
-      <div class="points-key-item"><span class="key-dot" style="background:var(--bronze-badge)"></span> 3rd place</div>
-      <div class="points-key-item" style="margin-left:auto;color:var(--text-muted);font-size:11px;font-style:italic;">
-        Ties broken by Sales Points
-      </div>
-    </div>
-
     <!-- ═══ HOW IT WORKS ═══════════════════════════════════════════════════ -->
     <section class="how-it-works">
       <div class="section-header">
@@ -880,6 +831,48 @@
         Sales are verified monthly by your Evercraft brand ambassador using purchase records.
       </p>
     </section>
+
+    <!-- ═══ CURRENT STANDINGS ══════════════════════════════════════════════ -->
+    <div class="section-header" style="margin-top: 64px;">
+      <h2 class="section-title">Current Standings</h2>
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        Live
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <div class="status-spinner"></div>
+      <span id="status-text">Fetching latest scores&hellip;</span>
+    </div>
+
+    <div class="leaderboard-card" id="leaderboard-card">
+      <table class="lb-table" id="lb-table" aria-label="Leaderboard">
+        <thead>
+          <tr>
+            <th style="width:56px">Rank</th>
+            <th>Venue</th>
+            <th class="num">Sales</th>
+            <th class="num">Menu &amp; Activation</th>
+            <th class="num">Digital</th>
+            <th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody id="lb-tbody">
+          <tr><td colspan="6" class="lb-empty"><strong>&#x22EF;</strong>Loading leaderboard&hellip;</td></tr>
+        </tbody>
+      </table>
+      <div class="lb-mobile" id="lb-mobile"></div>
+    </div>
+
+    <div class="points-key">
+      <div class="points-key-item"><span class="key-dot" style="background:var(--gold-badge)"></span> 1st place</div>
+      <div class="points-key-item"><span class="key-dot" style="background:var(--silver-badge)"></span> 2nd place</div>
+      <div class="points-key-item"><span class="key-dot" style="background:var(--bronze-badge)"></span> 3rd place</div>
+      <div class="points-key-item" style="margin-left:auto;color:var(--text-muted);font-size:11px;font-style:italic;">
+        Ties broken by Sales Points
+      </div>
+    </div>
 
   </main>
 
